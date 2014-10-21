@@ -68,7 +68,8 @@ Note: To see all files in current directory, use the ls command.
 * Usage :
 ```bash
 $> egrep <PATTERN> <FILE_NAME>
-``` - Outputs lines that contain the pattern
+``` 
+	- Outputs lines that contain the pattern
 
 #### Useful Regex
 * .  : match anything
@@ -133,7 +134,7 @@ $> echo $x #the "$" is required or it will just ouput "x"
 * Example: A script that prints date, current user, and current directory
 
 ```bash
-#!/bin/bash #required for every bash program
+#!/bin/bash
 date
 whoami
 uid

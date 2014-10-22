@@ -559,9 +559,162 @@ void inc(int *n) { *n += 1; }
 ```
 * The above code will work as originally intended (but someone using this function has to explicitly pass in the address of x)
 
-### Reference/Dynamic Memory
+### References
 * Take cin >> i as an example. How does this work? Why don't we need to say cin >> &i?
 	- This is because C++ provides another pointer-like type called a reference
 * Creating a reference:
 
-	 
+```C++
+int y = 10;
+int &z = y; //z is a reference to y
+```
+* Do *NOT* read &z as the address of z (this is wrong!)
+
+* A reference is like a constant pointer
+	- z points to y and always points to y
+* References also give us automatic dereferencing
+	- z = 12; is legal and sets y to 12
+* Consider the following:
+```C++
+int *p = &z;
+```
+* In the above example, p is set to the address of y, not z (z has no identity on it's own it's only purpose is to represent y)
+* Some properties of references:
+	1. Cannot leave a reference uninitialized
+	2. Must be initialized to something that has an address (called l-values)
+	3. Cannot create a reference to a pointer
+	4. Cannot create a reference to a reference
+	5. Cannot create an array of references
+* Key use of references : Passing by reference into a function
+	- Using a pointer: 
+	
+	```C++
+	void inc(int *n) { *n += 1; }
+	inc(&x);
+	```
+	
+	- Using a reference
+	
+	```C++
+	void inc(int &n) { n += 1; }
+	inc(x);
+	```
+* Note: you are not able to do inc(x+y); you must pass in an l-value
+	- There is an exception when the function takes a *constant* reference
+
+* Now we can understand how cin >> i works
+	- The operator is overloaded
+
+	```C++
+	istream &operator>>(istream &in, int &data) {...}
+	```
+	- Note: we return an istream object reference (actually, the *same* one as passed in) so that cascading works
+* Constant references
+	- *Always* pass by a constant reference where possible
+	- This allows us to pass in non l-values as the reference is read only
+		- This means we can pass in things like 5, x+x, etc.
+
+### Dynamic Memory
+* In C we did something like this:
+
+```C
+int *n = malloc(size * sizeof(int));
+//do stuff here...
+free(n);
+```
+* C++ does support malloc and free but there is a better way now
+* new : allocate memory like malloc
+* delete : deallocate memory like free
+* Example:
+
+```C++
+struct Node {
+	int data;
+	Node *next;
+};
+Node *np = new Node; //don't need to do size calculations (they are done automatically)
+//do stuff...
+delete np;
+```
+* new is type aware as you don't have to do size calculations
+	- Results in new being a lot less error prone
+
+#### Dynamic Arrays
+
+```C++ 
+cin >> n;
+int *arr = new int[n];
+delete [] arr; //slightly differenty syntac for arrays
+```
+* If you use just delete on a dynamic array, the behaviour is not defined
+
+#### Memory
+* Memory associated wth a program contains 3 things:
+	1. Program
+	2. Stack
+	3. Heap
+* Variables can be allocated on the stack or the heap
+	- Local variables are allocated on the stack
+		- Reclaimed after going out of scope
+	- Dynamic memory is allocated from the heap
+		- Not reclaimed after going out of scope
+* Observe this common mistake...
+
+```C++
+Node *getMeANode() {
+	Node n;
+	return &n; //REALLY BAD!!
+}
+```
+* This code returns a pointer to a _stack allocated_ Node. The pointer returned will point at reclaimed memory since the Node is reclaimed after going out of scope.
+* Do the following instead:
+
+```C++ 
+Node *getMeANode() {
+	Node *n = new Node; //don't forget to make n a pointer
+	return n;
+}
+```
+
+### Operator Overloading
+* Recall function overloading:
+
+```C++
+int negate(int n) { return -n; }
+bool negate(bool n) { return !n; }
+```
+* We have already seen that >> and << can be overloaded
+* Actually, any operator can be overloaded (+, -, etc.)
+* Consider the following struct:
+
+```C++ 
+struct Vec {
+	int x, y;
+};
+```
+* We can now define vector addition:
+
+```C++
+Vec operator+(const &v1, const &v2) {
+	Vec ret;
+	ret.x = v1.x + v2.x;
+	ret.y = v1.y + v2.y;
+	return ret;
+}
+```
+* Now lets define scalar multiplication:
+
+```C++
+Vec operator*(const &v, int k) {
+	Vec ret;
+	ret.x = v.x * k;
+	ret.y = v.y * k;
+	return ret;
+}
+```
+* Note that we have only defined multiplication for when the scalar is on the RHS
+* Let's leverage our current code to define it for the LHS too:
+
+```C++
+Vec operator*(int k, const &v) { return v * k; }
+```

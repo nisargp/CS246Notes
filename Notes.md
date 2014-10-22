@@ -384,7 +384,7 @@ int main() {
 
 #### Formatting Output
 * Use something called I/O manipulators
-	- #include <iomanip> to get access to a lot of manipulators
+	- #include &ltiomanip&gt to get access to a lot of manipulators
 * Example: Print an integer in hexadecimal, then print it again in base 10
 
 ```C++
@@ -393,7 +393,7 @@ cout << hex << i << endl; //switch to hex mode
 cout << dec << i << endl; //switch back to base 10
 ```
 * The stream abstraction applies to other sources of input such as files and even strings
-* Using <fstream> we get access to:
+* Using &ltfstream&gt we get access to:
 	- ifstream : similar to cin
 	- ofstream : similar to cout
 * Example: Read from a file and write to stdout
@@ -434,9 +434,8 @@ cout << s << endl;
 ```C++
 int n;
 string s;
+cout << "Enter a number" << endl;
 while(cin >> s) { //breaks automatically on cin.eof()
-	cout << "Enter a number" << endl;
-	cin >> s;
 	istringstream ss(s);
 	if(ss >> n) break; //we would probably do something with n here in real life
 	cout << "Try again..." << endl;
@@ -447,6 +446,8 @@ while(cin >> s) { //breaks automatically on cin.eof()
 	- The only error case for cin is if there is an EOF as a string can be anything else (unlike when you read to an integer)
 	
 ### Assorted Goodies/Review
+
+
 #### Default Arguments
 * Consider the following code:
 
@@ -1075,7 +1076,7 @@ Node::~Node() { delete next; }
 ostream &operator>>(ostream &out, const Node &n) {
 	out << n.data;
 	if(n.next) {
-		out << "," << *n.next; //dereference because >> takes Node by reference
+		out << "," <&lt; *n.next; //dereference because >> takes Node by reference
 	}
 	return out;
 }

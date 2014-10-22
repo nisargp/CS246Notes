@@ -69,7 +69,6 @@ Note: To see all files in current directory, use the ls command.
 ```bash
 $> egrep <PATTERN> <FILE_NAME>
 ``` 
-	- Outputs lines that contain the pattern
 
 #### Useful Regex
 * .  : match anything
@@ -273,3 +272,176 @@ while read test; do
 done < "${1}" #sets the stdin for the while loop to be our test suite
 exit 0 #sueccess!
 ```
+
+
+# C++
+=====
+
+Hello world in C++:
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main() {
+	cout << "Hello, world!!" << endl;
+	return 0; //optional (will happen automatically)
+}
+```
+*Some things to note:
+	- Wile you can use printf by including stdio, this is not allowed in the course
+	- If we don't inlcude the namespace, then we would have to refer to cout as std::cout, and endl as std::endl
+
+### Compiling
+* We use the g++ compiler
+* Common Usage: 
+```bash
+$> g++ <FILE_TO_COMPILE> -o <DESIRED_NAME>
+```
+* You can compile larger programs in parts. This will be covered later.
+
+### I/O
+* C++ provides 3 I/O objects:
+	1. cout : pritns to stdout
+	2. cin : reds from stdin
+	3. cerr : prints to stderr
+* C++ has 2 I/O operators
+	1. << : output operator (put to)
+	2. >> : input operator (get from)
+
+* Example: Get two numbers from stdin, add them, print result to stdout
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main() {
+	int x, y;
+	cin >> x >> y;
+	cout << x + y << endl;
+}
+```
+* This code works in perfect conditions but how can we tell if the read failed?
+	- If the read fails for any reason, then cin.fail() returns true
+	- If the read fails because of EOF, then cin.eof() returns true
+	- Note: Use cin.clear() to reset these flags
+
+* Example: Read all integers from stdin and print to stdout 1 per line. Terminate for bad reads (not int or EOF)
+
+```C++
+#include <iostream>
+using namespace std;
+int x;
+while(cin >> x) {
+	cout << x << endl;
+}
+```
+* We are able to put cin in the conditional because cin >> x evaluates to false when cin.fail() is true
+	- This is because of an implicit conversion to a void *, as well as the fact that >> returns cin with it's newest state (since a reference is returned)
+
+* Example: Rerad all ints and echo them . Ignore non-ints. Terminate at EOF
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main() {
+	int x;
+	while(true) {
+		cin >> x;
+		if(cin.fail()) {
+			if(cin.eof()) {
+				cin.clear(); //clears error flags
+				cin.ignore(); //skips the current thing in stream
+			} else {
+				break; //exits out of the loop
+			}
+		} else {
+			cout << x << endl;
+		}
+	}
+}
+```
+
+### Streams
+* In C++ we have a string data type
+* Example: Read in a string and print it out
+```C++
+#include <iostream>
+#include <string> //in order to use strings
+using namespace std;
+
+int main() {
+	string s;
+	cin >> s;
+	cout << s << endl;
+}
+```
+* There is a flaw with this program. If you input "Hello world", it will only output "Hello" because cin reads until the next whitespace.
+* To read an entire line, use getline(cin, s), where cin is the cin object and s is a string.
+	- Reads until a newline
+
+#### Formatting Output
+* Use something called I/O manipulators
+	- #include <iomanip> to get access to a lot of manipulators
+* Example: Print an integer in hexadecimal, then print it again in base 10
+
+```C++
+int i = 95;
+cout << hex << i << endl; //switch to hex mode
+cout << dec << i << endl; //switch back to base 10
+```
+* The stream abstraction applies to other sources of input such as files and even strings
+* Using <fstream> we get access to:
+	- ifstream : similar to cin
+	- ofstream : similar to cout
+* Example: Read from a file and write to stdout
+
+```C++
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+int main() {
+	string s;
+	ifsream f("in.txt");
+	string s;
+	while(f >> s) {
+		cout << s << endl;
+	}
+}
+```
+* Anything you can do with cin, you can do with another stream type
+
+* As I mentioned previously, we can also attach a stream to a string using <sstring>
+* This gives us access to:
+	- istringstream : read
+	- ostringstream : write
+* Example: Create a string using strings and possibly integers
+	- I am going to start omitting boilerplate code
+```C++
+ostringstream ss;
+ss << "Enter a number between "
+ss << low << "and" << high;
+string s = ss.str(); //gets the actual string from the object
+cout << s << endl;
+```
+
+*istringstream is very useful for converting a string to an integer:
+
+```C++
+int n;
+string s;
+while(cin >> s) { //breaks automatically on cin.eof()
+	cout << "Enter a number" << endl;
+	cin >> s;
+	istringstream ss(s);
+	if(ss >> n) break; //we would probably do something with n here in real life
+	cout << "Try again..." << endl;
+}
+```
+* Note: 
+	- ss is stack allocated and pops off the stack at every iteration. This means that if there is a bad read, the entire object will be discareded so we don't need to worry about resetting any flags.
+	- The only error case for cin is if there is an EOF as a string can be anything else (unlike when you read to an integer)
+	

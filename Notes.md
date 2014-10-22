@@ -1058,6 +1058,8 @@ ostream &operator>>(ostream &out, const Node &n);
 ```
 
 node.cc
+
+```C++
 #include <iostream>
 #include "node.h"
 using namespace std;

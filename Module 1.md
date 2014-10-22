@@ -718,3 +718,85 @@ Vec operator*(const &v, int k) {
 ```C++
 Vec operator*(int k, const &v) { return v * k; }
 ```
+
+* Now consider the following struct:
+
+```C++
+struct Grade {
+	int theGrade;
+};
+```
+* It seems silly to have a struct with only one filed, but this allows us to overload operators specifically for values that are supposed to be grades.
+* Here is an example of overloading the output:
+
+```C++
+ostream &operator<<(osream &out, const Grade &g) {
+	out << g.theGrade << "%";
+	return out; //for cascading to work
+} 
+```
+* Now the input:
+
+```C++
+istream &operator>>(istream &in, Grade &g) {
+	in >> g.theGrade;
+	if(g.theGrade > 100) g.theGrade = 100;
+	if(g.theGrade < 0) g.theGrade = 0;
+	return in;
+}
+```
+
+### Preprocessor
+* #include<FILENAME> is an example of a preprocessor derective
+	- Copies and pastes the contents of FILENAME
+* #define is another derective
+	- #define VAR VALUE
+	- Creates a preprocessor variable with a given value (empty string by default)
+	- Simply just search and replace
+	- Predates constant variables
+* Note: The output of the preprocessor won't necessarily be valid C++ code if you aren't careful
+* An interesting example:
+
+```C++
+#define ever ;;
+for(ever) {...} //infinite loop
+```
+
+#### Actual Uses
+* Defined constants for conditional compilation
+	- UNIX executes int main() {...}
+	- Windows executes int WinMain() {...}
+* This is a possible way to implement conditional compilation:
+
+```C++
+#define UNIX 1
+#define WINDOWS 2
+#define OS UNIX //or WINDOWS when you want to compile on Windows (just change this line)
+#if OS == UNIX
+int main() {
+#elif OS == WINDOWS
+int WinMain() {
+#endif
+	//main code here
+}
+```
+* In this example we have to go into the file to change which environment we want to compile for. We can change this so that this can be done through the command line instead.
+* Compile time arguments:
+	- Sets preprocessor variable
+	- In our example:
+	
+	```bash
+	$> g++ -DOS=UNIX <FILES>
+	```
+* Conditional compilation is useful for debugging (choose to compile loggin statements)
+	- Look at debug.cc in the SVN repo for an example
+* Note: You can make large block comments using preprocessor blocks that never get executred:
+
+```C++
+#if 0
+look at me! I am a big comment!!!
+I can even put invalid code in here! int l =; grape = new Banana[4];
+#endif
+```
+* The above code never reaches the compiler
+

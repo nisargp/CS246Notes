@@ -274,6 +274,7 @@ exit 0 #sueccess!
 ```
 
 
+
 # C++
 =====
 
@@ -288,7 +289,7 @@ int main() {
 	return 0; //optional (will happen automatically)
 }
 ```
-*Some things to note:
+* Some things to note:
 	- Wile you can use printf by including stdio, this is not allowed in the course
 	- If we don't inlcude the namespace, then we would have to refer to cout as std::cout, and endl as std::endl
 
@@ -428,7 +429,7 @@ string s = ss.str(); //gets the actual string from the object
 cout << s << endl;
 ```
 
-*istringstream is very useful for converting a string to an integer:
+* istringstream is very useful for converting a string to an integer:
 
 ```C++
 int n;
@@ -445,3 +446,122 @@ while(cin >> s) { //breaks automatically on cin.eof()
 	- ss is stack allocated and pops off the stack at every iteration. This means that if there is a bad read, the entire object will be discareded so we don't need to worry about resetting any flags.
 	- The only error case for cin is if there is an EOF as a string can be anything else (unlike when you read to an integer)
 	
+### Assorted Goodies/Review
+#### Default Arguments
+* Consider the following code:
+
+```C++ 
+void printSuiteFile(string name = "suite.txt") {
+	ifstream f(name.c_string());
+	string s;
+	while(f >> s) {
+		cout << s << endl;
+	}
+}
+```
+* Note that we have to instantiate f with name.c_string() and not just name. This is a design flaw of istringstream which requires to be initialized with a c style string which type string is not.
+* The above function can be called in two ways:
+	1. printSuiteFile()
+		- This will set name to be "suite.txt" when the function runs
+	2. printSuiteFile(FILE_NAME)
+		- The default parameter is ignored, and FILE_NAME is used instead
+
+* Some rules for default params:
+	1. Optional params *must* appear last.
+	2. Not allowed to follow a default argument with a non-default argument.
+	3. You can only specifty default arguments as long as you have specified prior arguments. (Follows from rule 2)
+
+#### Overloading Functions
+
+```C++
+int negate(int a { return -a; }
+int negate(bool b) {return !b;}
+```
+* In C this won't compile becaues the C compiler only looks at the names and sees that there are multiple "negates"
+* In C++, the compiler considers the name, number of arguments, and the type of arguments
+	- It is not enough for the return types to differ
+
+#### Declaration Before Use
+* In C/C++ you must declare something before you use it.
+	- Can cause issues with mutual recursion.
+* You are able to declare something without a definition which acts as a promise to the compiler that there will be a definition eventually.
+* You do this by just putting the function header (followed by a ;)
+
+#### Pointers
+
+```C++
+int n = 5;
+int * p = &n;
+cout << p; //prints address of n
+cout << *p; //prints the value of n
+int **pp; //pointer to a pointer to an int
+pp = &p; //pp points to address of the pointer p
+**pp = 10; //sets the value of n to 10
+```
+
+#### Arrays
+
+```C++
+int a[] = {1,2,3,4,8}
+```
+* Above code requests continous piece of memory to fit given elements.
+* Arrays are NOT pointers
+* Source of confusion: Name of array is shorthand for address of the first element of the array.
+	- a is equivalent to a[0]
+	- *(a+1) is equivalent to a[1] <-- pointer arithmatic
+
+#### Structs
+
+```C++
+struct Node {
+	int data;
+	struct Node *next; //you can ommit the "struct" here
+}; //semi-colon required for reasons not discussed in class
+```
+
+* Be catious of the following:
+
+```C++
+struct Node {
+	int data;
+	Node next;
+};
+```
+* The above won't compile because the compiler can't determine the size of next (infinite loop). If next is a pointer then the compiler knows it is the same size as an integer.
+
+#### Constants
+* A constant *must* be initialized at definition.
+* Constants never change
+
+```C++
+const Node n1= {5,0};
+n1.data = 5; //INVALID
+
+int n = 5;
+const int *np = &n; //pointer to an integer that is constant (can change pointer, can't change value of n)
+int * const p = &n; //const pointer to an int (can't change where pointer points to, can change n)
+const int * const p = &n; //read only (can't change anything)
+```
+
+#### Parameter Passing
+
+```C++
+void inc(int n) { n += 1; }
+int x = 5;
+inc(x);
+cout << x; //prints 5, not 6
+```
+* x is passed by value, a copy is made, and then it is popped off the stack. The original x is never changed.
+* We want to pass by reference (send address of x)
+
+```C++
+void inc(int *n) { *n += 1; }
+```
+* The above code will work as originally intended (but someone using this function has to explicitly pass in the address of x)
+
+### Reference/Dynamic Memory
+* Take cin >> i as an example. How does this work? Why don't we need to say cin >> &i?
+	- This is because C++ provides another pointer-like type called a reference
+* Creating a reference:
+
+	 

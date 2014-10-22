@@ -1082,7 +1082,7 @@ ostream &operator>>(ostream &out, const Node &n) {
 ```
 * Note: You need the scope resolution operator (::) or else the compiler won't know that you are defining the functions inside of Node
 
-### Assignment Operato
+### Assignment Operator
 * Consider the following:
 
 ```C++

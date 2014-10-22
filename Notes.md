@@ -75,8 +75,8 @@ $> egrep <PATTERN> <FILE_NAME>
 * ^  : starts with
 * $  : ends with
 * (exp1|exp2)  : match exp1 or exp2
-* [...] : match anything in [] (can take ranges)
-* [^...] : match anything apart from stuff in [] (can take ranges)
+* [...] : match anything in brackets (can take ranges)
+* [^...] : match anything apart from stuff in brackets (can take ranges)
 * +  : occues one or more times
 * *  : occures zero or more times
 * {x,y}  : occurs x to y times

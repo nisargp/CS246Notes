@@ -1037,7 +1037,9 @@ struct Node {
 ```
 * We can't simply put this definition in a .h file (contains definitions, not just declarations)
 * We need to split up the .cc and .h files as such:
+
 node.h
+
 ```C++
 #ifndef __NODE_H__
 #define __NODE_H__

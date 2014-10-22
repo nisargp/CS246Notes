@@ -969,3 +969,163 @@ struct Student {
 	1. Initializing object to existing object
 	2. Pass by value
 	3. Return by value
+* Every object has a default copy ctor which you can overload
+	- It is a field for field copy (shallow)
+* Student default copy ctor:
+
+```C++
+struct Student {
+	Student(const student &other)
+		: assns(other.assns), mid(other.mid), final(other.final) {}
+};
+```
+* This is sufficient for the Student class, but there are cases where we need to override the copy ctor
+* Consider the Node class:
+
+```C++
+struct Node {
+	int data;
+	Node *next;
+	Node(const Node &other): //defualt copy ctor
+		data(other.data),
+		next(other.next) {}
+};
+```
+* This will (for obvious reasons) not produce what we want. We need to override the copy ctor with a custom recursive version.
+
+```C++
+struct Node {
+	int data;
+	Node *next;
+	Node(const Node &other):
+		data(other.data),
+		next(other.next ? new Node(*other.next) : NULL){} //recursive
+};
+```
+
+#### Destructors (dtor)
+* To destroy an object, the dtor runs
+* Has the same name as the class but with a ~ in front
+	- Ex. ~Node()
+* Takes no arguments
+	- Therefore, cannot be overriden
+* You get a default dtor which calls the dtors of all objects in the fields of an object (like default ctors)
+* Note: base types and pointers do not have dtors
+* There are times when the default dtor is not enough; for example:
+
+```C++
+Node *np = new Node(1, new Node(2, new Node(3, 0)));
+delete np; //won't work as intended
+```
+* This will only free the first node and the other two will leak
+* To remedy this, we need a custom dtor:
+
+```C++
+~Node() { delete next; } //will delete entire linked list
+```
+* This works because when you try to delete NULL, the function just returns (base case) and the then the list is recursivly deleted one Node at a time
+
+### Seperate Compilation of Classes
+* Lets say we have the Node class: 
+
+```C++
+struct Node {
+	//fields
+	Node(...) {...}
+	~Node() {...}
+};
+```
+* We can't simply put this definition in a .h file (contains definitions, not just declarations)
+* We need to split up the .cc and .h files as such:
+node.h
+```C++
+#ifndef __NODE_H__
+#define __NODE_H__
+struct Node {
+	int data;
+	Node *next;
+	Node(int data, Node *next);
+	Node(const Node &n);
+	explicit Node(int n); //don't worry about this line for now
+	~Node();
+};
+
+//this is defined outside because anything defined in the Struct expects first
+//parameter to be this. First parameter needs to be out in this case.
+ostream &operator>>(ostream &out, const Node &n);
+
+#endif
+```
+
+node.cc
+#include <iostream>
+#include "node.h"
+using namespace std;
+
+NODE::Node(int n): data(n), next(NULL){}
+Node::Node(int data, Node *next): data(data), next(next) {}
+Node::Node(const Node &n):
+	data(n.data),
+	next(n.next ? new Node(*n.next) : NULL){}
+Node::~Node() { delete next; }
+ostream &operator>>(ostream &out, const Node &n) {
+	out << n.data;
+	if(n.next) {
+		out << "," << *n.next; //dereference because >> takes Node by reference
+	}
+	return out;
+}
+```
+* Note: You need the scope resolution operator (::) or else the compiler won't know that you are defining the functions inside of Node
+
+### Assignment Operato
+* Consider the following:
+
+```C++
+Student bobby(60,70,80);
+Student billy = bobby; //calls the copy ctor
+Student jane;
+jane = bobby; //calls the assignemnts operator (as jane isn't being initialized here)
+```
+* Reassigning jane does not call the copy ctor but instead calls the assignment operator
+* Just like the ctors, you get a default assignment operator which copies field for field
+*We need a custom assignment operator if there is dynamic memory involved
+* Consider this assignment operator for Node:
+
+```C++
+struct Node {
+	//returns a reference because we know we are modifying an existing object
+	Node &operator=(const Node &other) [
+		if(this == &other) return *this;
+		data = other.data;
+		Node *tmp = next; //prevent dangling pointer
+		next = other.next ? new Node(*other.next) : NULL;
+		delete temp; //delete old contents of next
+		return *this;
+	}
+};
+```
+
+#### Copy & Swap Idiom
+* This assumes that you have a working copy ctor and dtor
+
+```C++
+struct Node {
+	void swap(Node &other) {
+		int tdata = this.data;
+		this.data = other.data;
+		other.data = tdata;
+		Node *tnext = other.next;
+		this.next = other.next;
+		other.next = tnext;
+	}
+	Node &operator=(const Node &other) {
+		Node tmp = other;
+		swap(tmp);
+		return *this;
+	}
+};
+```
+* We don't need to explicitly delete anything as tmps dtor is called when temp goes out of scope
+* tmp takes old data and is discarded
+* this has intended values and is returned

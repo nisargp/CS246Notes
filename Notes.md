@@ -920,7 +920,7 @@ delete billy;
 	2. Default arguments
 	3. Overloading
 * Note: When calling the empty ctor, do *not* type "Student s()" because this looks like a function declaration to the compiler
-	- Doing "Student s = new Student()" is OK
+	- Doing "Student *s = new Student()" is OK
 * Default ctors are only available before you define one
 	- Also, you can't use C-style initialization after making a ctor (but who uses that shit anyway?)
 * Default ctors call default ctors of fileds that are objects and leave base types uninitialized

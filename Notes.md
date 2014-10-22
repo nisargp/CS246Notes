@@ -187,7 +187,7 @@ if [ ${1} -lt 1 ]; then
 	echo "You are not using this properly :("
 	exit 1 #non-zero indicates some form of error
 fi
-while [ ${x} -lt 1 ]; do
+while [ ${x} -le ${1} ]; do
 	echo "${x}"
 	x=$((x+1))
 done

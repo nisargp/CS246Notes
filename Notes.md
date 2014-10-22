@@ -77,8 +77,8 @@ $> egrep <PATTERN> <FILE_NAME>
 * (exp1|exp2)  : match exp1 or exp2
 * [...] : match anything in brackets (can take ranges)
 * [^...] : match anything apart from stuff in brackets (can take ranges)
-* +  : occues one or more times
-* *  : occures zero or more times
+* +  : occurs one or more times
+* *  : occurs zero or more times
 * {x,y}  : occurs x to y times
 
 ### File Permissions
@@ -351,7 +351,7 @@ int main() {
 	while(true) {
 		cin >> x;
 		if(cin.fail()) {
-			if(cin.eof()) {
+			if(!cin.eof()) {
 				cin.clear(); //clears error flags
 				cin.ignore(); //skips the current thing in stream
 			} else {
@@ -384,16 +384,18 @@ int main() {
 
 #### Formatting Output
 * Use something called I/O manipulators
-	- #include &ltiomanip&gt to get access to a lot of manipulators
+	- #include <iomanip> to get access to a lot of manipulators
 * Example: Print an integer in hexadecimal, then print it again in base 10
 
 ```C++
 int i = 95;
 cout << hex << i << endl; //switch to hex mode
 cout << dec << i << endl; //switch back to base 10
+cout << right << setprecision(2) << i << endl //float the output right, show the number to 2 decimal places
+
 ```
 * The stream abstraction applies to other sources of input such as files and even strings
-* Using &ltfstream&gt we get access to:
+* Using <fstream> we get access to:
 	- ifstream : similar to cin
 	- ofstream : similar to cout
 * Example: Read from a file and write to stdout
@@ -434,8 +436,9 @@ cout << s << endl;
 ```C++
 int n;
 string s;
-cout << "Enter a number" << endl;
 while(cin >> s) { //breaks automatically on cin.eof()
+	cout << "Enter a number" << endl;
+	cin >> s;
 	istringstream ss(s);
 	if(ss >> n) break; //we would probably do something with n here in real life
 	cout << "Try again..." << endl;
@@ -446,8 +449,6 @@ while(cin >> s) { //breaks automatically on cin.eof()
 	- The only error case for cin is if there is an EOF as a string can be anything else (unlike when you read to an integer)
 	
 ### Assorted Goodies/Review
-
-
 #### Default Arguments
 * Consider the following code:
 
@@ -583,9 +584,10 @@ int *p = &z;
 * Some properties of references:
 	1. Cannot leave a reference uninitialized
 	2. Must be initialized to something that has an address (called l-values)
-	3. Cannot create a reference to a pointer
-	4. Cannot create a reference to a reference
-	5. Cannot create an array of references
+	3. Cannot create a pointer to a reference  (int&* x; BAD)
+	4. However we CAN have reference to pointer (int *& pr = &p; OK)
+	5. Cannot create a reference to a reference
+	6. Cannot create an array of references
 * Key use of references : Passing by reference into a function
 	- Using a pointer: 
 	
@@ -1076,7 +1078,7 @@ Node::~Node() { delete next; }
 ostream &operator>>(ostream &out, const Node &n) {
 	out << n.data;
 	if(n.next) {
-		out << "," <&lt; *n.next; //dereference because >> takes Node by reference
+		out << "," << *n.next; //dereference because >> takes Node by reference
 	}
 	return out;
 }

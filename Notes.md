@@ -25,7 +25,7 @@ Note: To see all files in current directory, use the ls command.
 	- cat FILE_PATH => prints the contents of FILE_PATH
 	
 ### Redirection
-* Each program i sattached to 3 streams
+* Each program is attached to 3 streams
 	- Standard input (stdin)
 	- Standard error (stderr)
 	- Standard output (stdout)

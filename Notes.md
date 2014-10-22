@@ -800,3 +800,172 @@ I can even put invalid code in here! int l =; grape = new Banana[4];
 ```
 * The above code never reaches the compiler
 
+### Seperate Compilation
+* We want to modularize our code
+* Code can be broken up into .cc and .h files
+	- .h : interface (contains declarations)
+	- .cc : implementations
+
+* To compile project with multiple .cc files:
+	1. 
+	```bash
+	$> g++ *.cc #if all needed files in directory
+	```
+	2. 
+	```bash
+	g++ <FILE_1>...<FILE_N>
+	```
+* Note: Never compile a .h file
+* Another Note: Never #include a .cc file
+
+* Seperate compilationis th eability to compile induvidual pieces of a program and then combine them
+	- Sometimes, compiling large code bases can take hours, but compiling one part may take a minute
+* It is common to get linker errors when compiling files sepeartly (ld:)
+* By default g++ does compilation, linking, and produces an executable all at once
+* To seperatly compile (just compile), use the -c option
+	- Creates .o files (object file)
+	- Contains compiled code as well as information about dependencies
+* After creating .o files, g++ all of them to link them
+
+#### Global Variables
+* Lets say we have a file abc.h with the following code: 
+```C++
+int globalVar;
+```
+* Every file that includes abc.h will have it's own versin of globalVar so the linker will complain
+* Instead, we need to do the definition in abc.cc
+* This solves the linke error but now globalVar isn't global
+* We can solve this by changing abc.h to: 
+```C++
+extern int globalVar;
+```
+* extern is strictly just a declaration and not a definition
+
+#### Inlcude Guard
+* We have to be careful that we don't double include things (will cause linker errors)
+* For our Vector example:
+
+```C++
+#ifndef __VECTOR_H__
+#define __VECTOR_H__
+//put contents of .h here
+#endif
+```
+* The variable name is arbitrary, but it has to be unique
+* ALWAYS USE AN INCLUDE GUARD
+* Another piece of advice: Never define a namespace in a .h file, instead explicitly use the :: operator
+
+### C++ Classes
+* Essentially you can put functions inside of a struct
+* Consider the example Student:
+
+```C++
+struct Student {
+	int assns, mid, final;
+	float grade() {
+		return assns * 0.4 +
+			   mt * 0.2    +
+			   final * 0.4;
+	}
+};
+```
+* The above example is a class
+* Now we can create a student: 
+```C++
+Student s = {80,55,70};
+```
+* Note: There is a class keyword that will be talked about later (not much of a difference)
+
+#### Functions vs. Methods
+* Methods always have a hidden parameter called "this"
+* "this" is a pointer to the object on which the method was called
+* If we call s.grade() then this is a pointer to s
+	 - this == &s
+	 - *this == s
+* The C-style initialization {...} is limited because the passed in values must be compile time constants
+
+#### Constructors (ctors)
+* Same name as the class
+* A ctor for the Student class:
+
+```C++
+struct Student {
+	Student(int assns, int mid, int final) {
+		this->assns = assns;
+		this->mid = mid;
+		this->final = final;
+	}
+};
+```
+* Note that we need to use the "->" syntax as this is a pointer (not a value)
+* We can now use the Student ctor:
+
+```C++
+Student billy(60,30,40); //valid
+Student bob = Student(40,34,23); //also valid (equivalent to above code)
+```
+* Both of the above examples are stack allocated, we can also create a student on the heap:
+
+```C++
+Student billy = new Student(50,60,80);
+//do stuff
+delete billy;
+```
+
+* Advantages of a ctor:
+	1. Arbitrary computation
+	2. Default arguments
+	3. Overloading
+* Note: When calling the empty ctor, do *not* type "Student s()" because this looks like a function declaration to the compiler
+	- Doing "Student s = new Student()" is OK
+* Default ctors are only available before you define one
+	- Also, you can't use C-style initialization after making a ctor (but who uses that shit anyway?)
+* Default ctors call default ctors of fileds that are objects and leave base types uninitialized
+
+#### Member Initialization Lists
+* Suppose we have the following code:
+
+```C++
+struct MyStruct {
+	const int myConst;
+	int &myRef;
+};
+```
+* The above code won't compile because constants (inlcuding references) need to be initialized at declaration
+* The problem is, we can't initialize fields
+* The steps of creating an object are:
+	1. Space is allocated (stack/heap)
+	2. Fields are initialized : default ctors run
+	3. Constructor body runs
+* We need to hijack step 2; this is where MILs (Member Initialization Lists) come in
+* The following is how we would us an MIL in this case:
+
+```C++
+struct MyStruct {
+	const int myConst;
+	int &mtRef;
+	MyStruct(int c, int &r) : myConst(c), myRef(r) {...}
+};
+```
+* Note: MILs are *only* available for ctors
+
+* You can use MILs for other cases. Consider this case with the Student class:
+
+```C++ 
+struct Student {
+	int assns, mid, final;
+	Student(int assns, int mid, int final)
+		: assns(assns), mid(mid), final(final) {}
+};
+```
+* Note: We don't have to use this because of the way MILs work. The scoping just works out nicely.
+* Advantages of MIL:
+	1. Only way to initialize constants
+	2. Same name for fileds/parameters
+	3. Can be more efficient
+
+#### Copy Constructors
+* Copy ctors run on the following cases:
+	1. Initializing object to existing object
+	2. Pass by value
+	3. Return by value

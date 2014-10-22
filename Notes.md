@@ -22,7 +22,7 @@ Note: To see all files in current directory, use the ls command.
 ### Working with Files
 * cat : concatenate
 	- used to concatenate files but is mainly used to print the contents of a file
-	- cat <FILE_PATH> => prints the contents of FILE_PATH
+	- cat FILE_PATH => prints the contents of FILE_PATH
 	
 ### Redirection
 * Each program i sattached to 3 streams

@@ -1122,7 +1122,7 @@ struct Node {
 		int tdata = this.data;
 		this.data = other.data;
 		other.data = tdata;
-		Node *tnext = other.next;
+		Node *tnext = this.next;
 		this.next = other.next;
 		other.next = tnext;
 	}
